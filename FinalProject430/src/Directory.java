@@ -8,4 +8,8 @@ public class Directory {
 	public Directory(){
 		System.out.println("Hello world!");
 	}
+	
+	public void addDirectory(){
+		
+	}
 }
