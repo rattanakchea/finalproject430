@@ -4,7 +4,7 @@
 
 /**
  * @author rattanak
- * @author chamnaplim
+ * @author chamnaplim Lim
  */
 public class Directory {
 
