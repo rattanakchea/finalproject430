@@ -1,6 +1,6 @@
 /**
  * @author rattanak chea
- * @author chamnaplim Lim
+ * @author chamnaplim
  */
 public class Directory {
 
