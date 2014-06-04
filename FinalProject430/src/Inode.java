@@ -40,13 +40,12 @@ public class Inode {
 			this.direct[i] = SysLib.bytes2short(data, offset);
 			offset += 2;
 		}
-		
-		this.indirect = SysLib.bytes2short(data, offset);
-		
-		
+		this.indirect = SysLib.bytes2short(data, offset);	
 	}
-
-	int toDisk(short iNumber) { // save to disk as the i-th inode
+	/*
+	 * toDisk method
+	 */
+	public int toDisk(short iNumber) { // save to disk as the i-th inode
 		byte[] writeToInode = new byte[this.iNodeSize];
 		
 		int index = 0;
@@ -73,11 +72,16 @@ public class Inode {
 		SysLib.rawread(blockToWriteTo, bufferToDisk);
 		
 		int offsetInThatBlock = iNumber % 16 * this.iNodeSize;
-		
-		System.arraycopy(writeToInode, 0, bufferToDisk, offsetInThatBlock, this.iNodeSize);
-		
+		System.arraycopy(writeToInode, 0, bufferToDisk, offsetInThatBlock, this.iNodeSize);	
 		SysLib.rawwrite(blockToWriteTo, bufferToDisk);
 		
 		return 1;
+	}
+	
+	/*
+	 * findIndexBlock
+	 */
+	public short findIndexBlock(){
+		return this.indirect;
 	}
 }

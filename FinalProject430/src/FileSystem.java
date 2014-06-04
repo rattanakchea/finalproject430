@@ -23,7 +23,19 @@ public class FileSystem {
 		}
 		close(dirEnt);
 	}
+	 public boolean format(int paramInt)
+	  {
+	    while (!this.filetable.fempty()) {}
+	    this.superblock.format(paramInt);
+	    
 
+	    this.directory = new Directory(this.superblock.inodeBlocks);
+	    
+
+	    this.filetable = new FileTable(this.directory);
+	    
+	    return true;
+	  }
 	// methods
 	public void close(FileTableEntry dirEnt) {
 
