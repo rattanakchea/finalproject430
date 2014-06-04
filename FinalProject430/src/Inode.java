@@ -23,6 +23,25 @@ public class Inode {
 	// retrieving inode from disk
 	Inode(short iNumber) {
 		// design it by yourself.
+		int blockNumber = 1 + iNumber/16;
+		byte[] data = new byte[Disk.blockSize];
+		SysLib.rawread(blockNumber, data);  //read into data
+		int offset = iNumber % 16 * 32;
+		
+		this.length = SysLib.bytes2int(data, offset);
+		offset += 4;
+		this.count = SysLib.bytes2short(data, offset);
+		offset += 2;
+		this.flag = SysLib.bytes2short(data, offset);
+		offset += 2;
+		
+		//direct[] = new short[11]
+		for (int i=0; i < 11; i++){
+			this.direct[i] = SysLib.bytes2short(data, offset);
+			offset += 2;
+		}
+		
+		this.indirect = SysLib.bytes2short(data, offset);
 		
 		
 	}
