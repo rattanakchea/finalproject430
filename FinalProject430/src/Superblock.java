@@ -32,29 +32,46 @@ public class Superblock {
 		totalInodes = inodeBlocks;
 		freeList = totalBlockForInodeInInt + 1;
 		
+		Inode inode = new Inode();
+		inode.flag = 0;
+		
+		// wirte Inode to disk from block 1 to 4
+		for (int i = 0; i < this.totalInodes; i++){
+			inode.toDisk((short)i);
+		}
+		
+		byte[] blockContent;
+		for (int i = freeList; i < this.totalBlocks; i++){ // last block should store -1
+			blockContent = new byte[Disk.blockSize];
+			SysLib.int2bytes(i + 1, blockContent, 0);	// store next block Number to current for link to next block
+			SysLib.rawwrite(i, blockContent);
+		}
+		
+		this.sync();
+	}
+	
+	private void sync(){
 		// store superblock
 		byte[] blockZero = new byte[Disk.blockSize];
-		
+
 		SysLib.int2bytes(this.totalBlocks, blockZero, 0);
 		SysLib.int2bytes(this.totalInodes, blockZero, 4);
 		SysLib.int2bytes(this.freeList, blockZero, 8);
-		
+
 		SysLib.rawwrite(0, blockZero);
-		//-------------done with superblock---------------------
+		// -------------done with superblock---------------------
+	}
+	
+	public int getFreeBlock(){
+		int i = this.freeList;
 		
-		for (int i = 1; i <= totalBlockForInodeInInt; i++){
-			byte[] eachBlock = new byte[Disk.blockSize];
-			int length = 0;
-			short count = 0;
-			short flag = 0;
-			short[] direct = new short[11];
-			for (int index = 0; index < 11; index++) direct[index] = -1;
-			short indirect = -1;
-			for (int j = 0 ; j < 512; j += 32){
-				SysLib.int2bytes(0, eachBlock, j+0);
-				SysLib.short2bytes((short)0, eachBlock, j+4);
-			}
+		if (i != -1){
+			byte[] blockContent = new byte[Disk.blockSize];
+			SysLib.rawread(i, blockContent);
+			int newFreeList = SysLib.bytes2int(blockContent, 0);
+			
 		}
 		
+		return 1;
 	}
 }
