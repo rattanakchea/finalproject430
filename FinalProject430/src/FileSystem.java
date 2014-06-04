@@ -8,7 +8,7 @@ public class FileSystem {
 	private FileTableEntry filetable;
 
 	public FileSystem(int diskBlocks) {
-		superblock = new Superblock(diskBlocks);
+		superblock = new Superblock(diskBlocksd);
 		directory = new Directory(superblock.totalInodes);
 		filetable = new FileTableEntry(directory);
 
