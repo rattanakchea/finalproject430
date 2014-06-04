@@ -1,33 +1,25 @@
 
-public class Superblock {
+public class SuperBlock {
 	private final int defaultInodeBlocks = 64;
 	public int totalBlocks; // the number of disk blocks
 	public int totalInodes; // the number of inodes
 	public int freeList;	// the block number of the free list's head
 	
-	public Superblock(int diskSize){
+	public SuperBlock(int diskSize){
 		// read the superblock from disk
 		byte[] superblock = new byte[Disk.blockSize];
 		SysLib.rawread(0, superblock);
 		
-		SysLib.cerr("befor read from index 0 for totalBlocks, diskSize: " +diskSize+ " \n");
-		
 		totalBlocks = SysLib.bytes2int(superblock, 0);
-		
-		SysLib.cerr("after read from index 0 for totalBlocks: " +totalBlocks+ " \n");
 		
 		totalInodes = SysLib.bytes2int(superblock, 4);
 		
-		SysLib.cerr("after read from index 4 for totalInodes: " +totalInodes+ " \n");
-		
 		freeList = SysLib.bytes2int(superblock, 8);
-		SysLib.cerr("after read from index 8 for freeList: " +freeList+ " \n");
 		
 		if (totalBlocks == diskSize && totalInodes > 0 && freeList >= 2){
 			// disk content are valid
 			return;
 		}else{
-			SysLib.cerr("Now execute else condition.... \n");
 			// need to format disk
 			totalBlocks = diskSize;
 			format(defaultInodeBlocks);
@@ -45,14 +37,10 @@ public class Superblock {
 		Inode inode = new Inode();
 		inode.flag = 0;
 		
-		SysLib.cerr("Before writing Inodes to Inode blocks.... \n");
-		
 		// wirte Inode to disk from block 1 to 4
 		for (int i = 0; i < this.totalInodes; i++){
 			inode.toDisk((short)i);
 		}
-		
-		SysLib.cerr("after writing Inodes to Inode blocks.... \n");
 		
 		byte[] blockContent;
 		for (int i = freeList; i < this.totalBlocks; i++){ // last block should store -1
@@ -69,13 +57,12 @@ public class Superblock {
 	private void sync(){
 		// store superblock
 		byte[] blockZero = new byte[Disk.blockSize];
-
+		
 		SysLib.int2bytes(this.totalBlocks, blockZero, 0);
 		SysLib.int2bytes(this.totalInodes, blockZero, 4);
 		SysLib.int2bytes(this.freeList, blockZero, 8);
 
 		SysLib.rawwrite(0, blockZero);
-		// -------------done with superblock---------------------
 	}
 	
 	// -------------------------getFreeBlock---------------------------------------
