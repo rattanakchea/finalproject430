@@ -180,6 +180,7 @@ public class Kernel
                case FORMAT:  // to be implemented in project
                   return OK;
                case DELETE:  // to be implemented in project
+            	   return 
                   return OK;
             }
             return ERROR;
