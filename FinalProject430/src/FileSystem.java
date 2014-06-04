@@ -8,7 +8,7 @@ public class FileSystem {
 	private FileTableEntry filetable;
 
 	public FileSystem(int diskBlocks) {
-		superblock = new SuperBlock(diskBlocks);
+		superblock = new Superblock(diskBlocks);
 		directory = new Directory(superblock.totalInodes);
 		filetable = new FileTableEntry(directory);
 
@@ -33,5 +33,27 @@ public class FileSystem {
 	public void read(FileTableEntry dirEnt, byte[] data) {
 
 	}
+
+	// methods
+	public int fsize(FileTableEntry dirEnt) {
+		return 1;
+	}
+
+	// methods
+	public int write(int fd, byte[] buffer) {
+		return 1;
+	}
+
+	// methods
+	public int delete(String fileName) {
+		return 1;
+	}
+	
+	// methods
+	public int seek(int fd, int offset, int whence) {
+		return 1;
+	}
+	
+	
 
 }
