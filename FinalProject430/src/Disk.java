@@ -125,7 +125,6 @@ public class Disk extends Thread {
 
    private synchronized void finishCommand( ) {
       command = IDLE;
-      readyBuffer = true;
       SysLib.disk( ); // a disk interrupt
    }
 
