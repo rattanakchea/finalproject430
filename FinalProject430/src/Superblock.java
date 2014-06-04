@@ -62,16 +62,38 @@ public class Superblock {
 		// -------------done with superblock---------------------
 	}
 	
+	// -------------------------getFreeBlock---------------------------------------
 	public int getFreeBlock(){
 		int i = this.freeList;
 		
 		if (i != -1){
 			byte[] blockContent = new byte[Disk.blockSize];
 			SysLib.rawread(i, blockContent);
-			int newFreeList = SysLib.bytes2int(blockContent, 0);
 			
+			this.freeList = SysLib.bytes2int(blockContent, 0);
+			
+			SysLib.int2bytes(0, blockContent, 0);
+			SysLib.rawwrite(i, blockContent);
 		}
 		
-		return 1;
+		return i;
+	}
+	
+	// -------------------------returnBlock---------------------------------------
+	public boolean returnBlock(int blockId){
+		if (blockId >= 0){
+			byte[] blockContent = new byte[512];
+			// Initialize to zero
+			for (int i = 0; i < Disk.blockSize; i++)
+				blockContent[i] = 0;
+			
+			SysLib.int2bytes(this.freeList, blockContent, 0);	// set the link
+			SysLib.rawwrite(blockId, blockContent);	// write back to disk
+			
+			this.freeList = blockId;
+			return true;
+		}
+		
+		return false;
 	}
 }
