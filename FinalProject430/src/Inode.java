@@ -19,8 +19,9 @@ public class Inode {
 			direct[i] = -1;
 		indirect = -1;
 	}
-
-	Inode(short iNumber) { // retrieving inode from disk
+	
+	// retrieving inode from disk
+	Inode(short iNumber) {
 		// design it by yourself.
 		
 		
