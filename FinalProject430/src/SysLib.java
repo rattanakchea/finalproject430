@@ -94,7 +94,7 @@ public class SysLib {
 	b[offset] = (byte)( s >> 8 );
 	b[offset + 1] = (byte)s;
     }
-
+    
     public static short bytes2short( byte[] b, int offset ) {
 	short s = 0;
         s += b[offset] & 0xff;
