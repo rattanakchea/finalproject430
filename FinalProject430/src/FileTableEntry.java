@@ -1,3 +1,8 @@
+/*
+ * FileTableEntry Class
+ * @data May 3, 2014
+ */
+
 public class FileTableEntry {  // Each table entry should have
     public int seekPtr;        //    a file seek pointer
     public final Inode inode;  //    a reference to an inode
