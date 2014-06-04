@@ -49,12 +49,12 @@ public class Inode {
 		
 		int blockToWriteTo = 1 + (iNumber / 16);
 		
-		byte[] bufferFromDisk = new byte[Disk.blockSize];
-		SysLib.rawread(blockToWriteTo, bufferFromDisk);
+		byte[] bufferToDisk = new byte[Disk.blockSize];
+		SysLib.rawread(blockToWriteTo, bufferToDisk);
 		
-		int offsetInThatBlock = iNumber 
+		int offsetInThatBlock = iNumber % 16 * 32;
 		
-		System.ar
+		System.arraycopy(writeToInode, 0, bufferToDisk, destPos, offsetInThatBlock);
 		
 		return 1;
 	}
