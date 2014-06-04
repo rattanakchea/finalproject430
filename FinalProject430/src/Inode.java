@@ -28,7 +28,35 @@ public class Inode {
 	}
 
 	int toDisk(short iNumber) { // save to disk as the i-th inode
-		// design it by yourself.
+		byte[] writeToInode = new byte[this.iNodeSize];
+		
+		int index = 0;
+		
+		SysLib.int2bytes(this.length, writeToInode, index);
+		
+		index += 4;
+		SysLib.short2bytes(this.count, writeToInode, index);
+		
+		index += 2;
+		SysLib.short2bytes(this.flag, writeToInode, index);
+		
+		for (int i = 2; i <= this.directSize * 2; i += 2){
+			index += i;
+			SysLib.short2bytes(this.direct[i], writeToInode, index);
+		}
+		
+		index += 2;
+		SysLib.short2bytes(this.indirect, writeToInode, index);
+		
+		int blockToWriteTo = 1 + (iNumber / 16);
+		
+		byte[] bufferToDisk = new byte[Disk.blockSize];
+		SysLib.rawread(blockToWriteTo, bufferToDisk);
+		
+		int offsetInThatBlock = iNumber % 16 * 32;
+		
+		System.arraycopy(writeToInode, 0, bufferToDisk, destPos, offsetInThatBlock);
+		
 		return 1;
 	}
 }
