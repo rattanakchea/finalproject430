@@ -24,7 +24,7 @@ public class Superblock {
 		}
 	}
 	
-	private void format(int inodeBlocks){
+	public boolean format(int inodeBlocks){
 		int totalByteForInode = inodeBlocks * 32;
 		double totalBlockforInode = (double)totalByteForInode / 512;
 		int totalBlockForInodeInInt = (int) Math.ceil(totalBlockforInode);  // 4
@@ -48,6 +48,8 @@ public class Superblock {
 		}
 		
 		this.sync();
+		
+		return true;
 	}
 	
 	private void sync(){
