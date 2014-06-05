@@ -38,6 +38,12 @@ public class TestSuperBlock extends Thread {
 	    }
 	    SysLib.cerr("i : " + i + " \n");
 	    SysLib.cerr("j : " + j + " \n");
+	    
+	    if (directory.ifree(i)){
+	    	SysLib.cerr("true\n");
+	    }else{
+	    	SysLib.cerr("false\n");
+	    }
 		
 		SysLib.exit();
 	}
