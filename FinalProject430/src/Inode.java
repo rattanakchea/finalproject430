@@ -10,7 +10,13 @@ public class Inode {
 	public short flag; // 0 = unused, 1 = used, ...
 	public short direct[] = new short[directSize]; // direct pointers
 	public short indirect; // a indirect pointer
-
+	
+	public static final short UNUSED = 0;
+	public static final short USED = 1;
+	public static final short READ = 2;
+	public static final short WRITE = 3;
+	public static final short DELETE = 4;
+	
 	Inode() { // a default constructor
 		length = 0;
 		count = 0;
