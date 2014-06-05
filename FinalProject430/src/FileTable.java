@@ -1,10 +1,12 @@
+import java.util.Vector;
+
 
 public class FileTable {
-	private Vector table; // the actual entity of this file table
+	private Vector<FileTableEntry> table; // the actual entity of this file table
 	private Directory dir; // the root directory
 	
 	public FileTable(Directory directory) { // constructor
-		table = new Vector(); // instantiate a file (structure) table
+		table = new Vector<FileTableEntry>(); // instantiate a file (structure) table
 		dir = directory; // receive a reference to the Director
 	}
 	
@@ -15,6 +17,7 @@ public class FileTable {
 		// increment this inode's count
 		// immediately write back this inode to the disk
 		// return a reference to this file (structure) table entry
+		
 	}
 	
 	public synchronized boolean ffree(FileTableEntry e) {
@@ -27,4 +30,5 @@ public class FileTable {
 	public synchronized boolean fempty() {
 		return table.isEmpty(); // return if table is empty
 	}
+	
 }
