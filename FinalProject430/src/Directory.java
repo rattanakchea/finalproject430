@@ -90,7 +90,7 @@ public class Directory{
 	public short namei(String filename) {
 		// returns the inumber corresponding to this filename
 		for (int i=0; i<this.fsize.length; i++){
-			String fn = String.valueOf(this.fnames[i]);
+			String fn = String.valueOf(this.fnames[i], 0, this.fsize[i]);
 			if (fn.equals(filename)){
 				return (short)i;
 			}	

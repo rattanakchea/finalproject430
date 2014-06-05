@@ -25,6 +25,19 @@ public class TestSuperBlock extends Thread {
 	      SysLib.cout( "totalBlocks = " + totalBlocks + " (wrong)\n" );
 	    }
 		
+	    Directory directory = new Directory(superBlock.totalInodes);
+	    
+	    short i = directory.ialloc("readme.txt");
+	    SysLib.cerr("finish ialloc \n");
+	    
+	    short j = directory.namei("readme.txt");
+	    if ( i == j){
+	    	SysLib.cerr("i is equeal \n");
+	    }else{
+	    	SysLib.cerr("i is not equeal \n");
+	    }
+	    SysLib.cerr("i : " + i + " \n");
+	    SysLib.cerr("j : " + j + " \n");
 		
 		SysLib.exit();
 	}

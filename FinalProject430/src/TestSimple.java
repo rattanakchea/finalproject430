@@ -2,26 +2,21 @@
 public class TestSimple {
 
 	public static void main(String[] args) {
-		int inodes = 65;
-		int inodesInByte = 65 * 32;
-		double totalBlockForInode = (double)inodesInByte / 512;
+		char[] string = new char[10];
+		for (int i = 0; i < 5; i++)
+			string[i] = 'a';
 		
-		System.out.println("inodes: " + inodes);
-		System.out.println("indoesInByte: " + inodesInByte);
-		System.out.println("total block for Inode: " + Math.ceil(totalBlockForInode));
+		String com = "aaaaa";
+		String str = String.valueOf(string, 0, 5);
 		
-		
-		byte[] superblock = new byte[Disk.blockSize];
-		SysLib.int2bytes(1000, superblock, 0);
-		SysLib.int2bytes(64, superblock, 4);
-		
-		int totalBlocks = SysLib.bytes2int(superblock, 0);
-		int totalInodes = SysLib.bytes2int(superblock, 4);
-		
-		System.out.println("total blocks: " + totalBlocks);
-		System.out.println("total inodes: " + totalInodes);
-		
-		
+		System.out.println(str.length());
+		System.out.println(com);
+		System.out.println(str);
+		if (com.equals(str)){
+			System.out.println("equal");
+		}else{
+			System.out.println("not equal");
+		}
 	}
 
 }
