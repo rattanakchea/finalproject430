@@ -49,7 +49,6 @@ public class Inode {
 		byte[] writeToInode = new byte[this.iNodeSize];
 		
 		int index = 0;
-		
 		SysLib.int2bytes(this.length, writeToInode, index);
 		
 		index += 4;
@@ -58,12 +57,12 @@ public class Inode {
 		index += 2;
 		SysLib.short2bytes(this.flag, writeToInode, index);
 		
-		for (int i = 2; i <= this.directSize * 2; i += 2){
-			index += i;
+		index += 2;
+		for (int i = 0; i < this.directSize; i++){
 			SysLib.short2bytes(this.direct[i], writeToInode, index);
+			index += 2;
 		}
 		
-		index += 2;
 		SysLib.short2bytes(this.indirect, writeToInode, index);
 		
 		int blockToWriteTo = 1 + (iNumber / 16);
