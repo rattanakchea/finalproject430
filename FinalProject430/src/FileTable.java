@@ -18,13 +18,17 @@ public class FileTable {
 		// immediately write back this inode to the disk
 		// return a reference to this file (structure) table entry
 		
+		/*
+		 * FileTableEntry is created every time file is opened; doesn't matter if it is existed or not, but
+		 * if file is existed, iNode will be the same and count inside Inode will be incremented.
+		 */
 		short iNumber = -1;
 		Inode inode = null;
 		
 		while(true){
 			iNumber = filename.equals("/") ? 0 : dir.namei(filename);
-			if (iNumber >= 0){
-				inode = new Inode(iNumber);
+			if (iNumber >= 0){	// if file existed in directory
+				inode = new Inode(iNumber);	// load iNode from disk, which will have all information such as count, flag...
 				
 				if (mode.equals("r")){
 					if (inode.flag == Inode.UNUSED || inode.flag == Inode.USED || inode.flag == Inode.READ){
@@ -34,7 +38,6 @@ public class FileTable {
 					}else if (inode.flag == Inode.WRITE){
 						// wait for write to exit						
 						wait();
-						break;
 					}else if (inode.flag == Inode.DELETE){
 						iNumber = -1;	// no more open
 						return null;
@@ -48,7 +51,6 @@ public class FileTable {
 					}else if (inode.flag == Inode.WRITE || inode.flag == Inode.READ){
 						// cannot write to the file, wait to be woken up
 						wait();
-						break;
 					}else if (inode.flag == Inode.DELETE){ // the file has already been deleted
 						iNumber = -1; // no more open
 						return null;

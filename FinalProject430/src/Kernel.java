@@ -49,6 +49,7 @@ public class Kernel
    private static Scheduler scheduler;
    private static Disk disk;
    private static Cache cache;
+   private static FileSystem fs;
 
    // Synchronized Queues
    private static SyncQueue waitQueue;  // for threads to wait for their child
@@ -74,6 +75,8 @@ public class Kernel
                   // instantiate and start a disk
                   disk = new Disk( 1000 );
                   disk.start( );
+                  
+                  fs = new FileSystem(//params);
 
                   // instantiate a cache memory
                   cache = new Cache( disk.blockSize, 10 );
