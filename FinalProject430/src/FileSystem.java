@@ -3,17 +3,17 @@
  * @data May 3, 2014
  */
 public class FileSystem {
-	private Superblock superblock;
+	private SuperBlock superblock;
 	private Directory directory;
 	private FileTableEntry filetable;
 
 	public FileSystem(int diskBlocks) {
-		superblock = new Superblock(diskBlocks);
+		superblock = new SuperBlock(diskBlocks);
 //		directory = new Directory(superblock.totalInodes);
 //		filetable = new FileTableEntry(directory);
 //
 //		// read the "/" file from disk
-//		FileTableEntry dirEnt = this.open("/", "r");
+		//FileTableEntry dirEnt = this.open("/", "r");
 //		int dirSize = fsize(dirEnt);
 //		if (dirSize > 0) {
 //			// directory has some data
