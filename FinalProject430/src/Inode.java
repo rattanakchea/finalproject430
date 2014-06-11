@@ -169,7 +169,7 @@ public class Inode {
 		
 	}
 	
-	/*
+	/* unregisterIndexBlock()
 	 * need to write
 	 */
 	byte[] unregisterIndexBlock(){
