@@ -89,4 +89,30 @@ public class Inode {
 	public short findIndexBlock(){
 		return this.indirect;
 	}
+	
+	/*
+	 * findIndexBlock
+	 */
+	boolean registerIndexBlock(short num){
+		for (int i=0; i < this.directSize; i++){
+			if (this.direct[i] == -1) {
+				return false;
+			}
+		}
+		if (this.indirect != -1){
+			return false;
+		}
+		
+		this.indirect = num;
+		byte[] data = new byte[512];
+		for (int j=0; j<256; j++) {
+			SysLib.short2bytes((short)-1, data, j*2);
+		}
+		SysLib.rawwrite(num, data);
+		return true;
+	}
+	
+	
+	
+	
 }
