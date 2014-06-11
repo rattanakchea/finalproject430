@@ -78,10 +78,38 @@ public class FileTable {
 		// save the corresponding inode to the disk
 		// free this file table entry.
 		// return true if this file table entry found in my table
+		if (table.remove(e)){
+			e.inode.count--;
+			e.inode.toDisk(e.iNumber);
+			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE){
+				notify();
+			}
+			
+			// last thread to close file
+//			if (e.inode.count == 0){
+//				e.inode.flag = Inode.USED;
+//			}
+			
+			return true;
+		}
+		
+		return false;
+		
 	}
 	
 	public synchronized boolean fempty() {
 		return table.isEmpty(); // return if table is empty
+	}
+	
+	public FileTableEntry getEntryAtInumber(int iNumber){
+		for (int i = 0; i < table.size(); i++){
+			FileTableEntry fte = table.get(i);
+			if (fte.iNumber == iNumber){
+				return fte;
+			}
+		}
+		
+		return null;
 	}
 	
 }
