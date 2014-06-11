@@ -1,3 +1,5 @@
+import javax.naming.spi.DirStateFactory;
+
 /*
  * Inode Class
  * @data May 3, 2014
@@ -91,7 +93,7 @@ public class Inode {
 	}
 	
 	/*
-	 * findIndexBlock
+	 * registerIndexBlock
 	 */
 	boolean registerIndexBlock(short num){
 		for (int i=0; i < this.directSize; i++){
@@ -112,7 +114,72 @@ public class Inode {
 		return true;
 	}
 	
+
+	/*
+	 * need to commands
+	 */
+	int findTargetBlock(int offset){
+		if (offset < 0) return -1;
+		else if (offset < directSize) {
+			//direct dump
+			return direct[offset];
+		}
+		//get the index within indirect block
+		int indirect_offset = offset - directSize;
+		
+		//read from this indirect block the short at indirect offset
+		return SysLib.bytes2short(readIndirectBlock(), indirect_offset);
+	}
 	
+	private byte[] readIndirectBlock(){
+		byte[] indrect_block = new byte[Disk.blockSize];
+		//read entire indirect block
+		SysLib.rawread(indirect, indrect_block);
+		return indrect_block;
+	}
 	
+	/*
+	 * need to write
+	 */
+	int registerTargetBlock(int offset, short indexBlockNumber){
+		int index_offset = offset / Disk.blockSize;
+		if (index_offset < 11) {
+			if (this.direct[index_offset] >= 0)
+				return -1;
+			
+			if (index_offset > 0 && (this.direct[index_offset-1]) == -1)
+				return -2;
+			
+			this.direct[index_offset] = indexBlockNumber;
+			return 0;
+		}
+		if (this.indirect < 0){
+			return -3;
+		}
+		byte[] data = new byte[Disk.blockSize];
+		int j = index_offset - directSize;
+		if (SysLib.bytes2short(data, j*2) > 0) {
+			SysLib.cerr("indexBlock, indirectNumber : " + j);
+			SysLib.cerr(" "+ SysLib.bytes2short(data, j*2));
+			return -1;
+		}
+		SysLib.short2bytes(indexBlockNumber, data, j*2);
+		SysLib.rawwrite(this.indirect, data);
+		return 0;
+		
+	}
+	
+	/*
+	 * need to write
+	 */
+	byte[] unregisterIndexBlock(){
+		if (this.indirect >= 0){
+			byte[] data = new byte[Disk.blockSize];
+			SysLib.rawread(this.indirect, data);
+			this.indirect = -1;
+			return data;
+		}
+		return null;
+	}
 	
 }
