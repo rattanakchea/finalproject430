@@ -57,10 +57,14 @@ public class FileTable {
 					}
 				}
 			} else {	// the iNumber is negative so the file doesn't exist
+				if (mode.equalsIgnoreCase("r")) // can't read because file is not exist in the directory
+					return null;
+				
 				iNumber = dir.ialloc(filename);
 				inode = new Inode();
 				// we are creating a new inode to this file with the USED flag, write
 		        // it to the disk below
+				inode.flag = Inode.WRITE;
 		        break;
 			}
 		}
