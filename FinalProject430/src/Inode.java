@@ -21,7 +21,11 @@ public class Inode {
 	public static final short WRITE = 3;
 	public static final short DELETE = 4;
 	
-	Inode() { // a default constructor
+	/* ----------------------------------------------------------------------//
+	 * default constructor
+	 * @purpose: initialize an Inode
+	 */
+	Inode() {
 		length = 0;
 		count = 0;
 		flag = 1;
@@ -30,30 +34,36 @@ public class Inode {
 		indirect = -1;
 	}
 	
-	// retrieving inode from disk
-	Inode(short iNumber) {
-		// design it by yourself.
+	/* ----------------------------------------------------------------------//
+	 * Inode constructor with iNumber passed in
+	 * @para: iNumber
+	 */
+	Inode(short iNumber) {  //retrieve Inode from disk
 		int blockNumber = 1 + iNumber/16;
 		byte[] data = new byte[Disk.blockSize];
 		SysLib.rawread(blockNumber, data);  //read into data
 		int offset = iNumber % 16 * 32;
 		
+		//load length, count, and flag
 		this.length = SysLib.bytes2int(data, offset);
-		offset += 4;
+		offset += 4;  //int has 4 bytes
 		this.count = SysLib.bytes2short(data, offset);
-		offset += 2;
+		offset += 2; //short has 2 bytes
 		this.flag = SysLib.bytes2short(data, offset);
-		offset += 2;
+		offset += 2; //short has 2 bytes
 		
-		//direct[] = new short[11]
-		for (int i=0; i < 11; i++){
+		for (int i=0; i < directSize; i++){
+			//load direct pointers
 			this.direct[i] = SysLib.bytes2short(data, offset);
 			offset += 2;
 		}
 		this.indirect = SysLib.bytes2short(data, offset);	
 	}
-	/*
-	 * toDisk method
+	
+	/* ----------------------------------------------------------------------//
+	 * toDisk
+	 * @pupose: save to the disk as the i-th Inode
+	 * @para: iNumber
 	 */
 	public int toDisk(short iNumber) { // save to disk as the i-th inode
 		byte[] writeToInode = new byte[this.iNodeSize];
@@ -69,6 +79,7 @@ public class Inode {
 		
 		index += 2;
 		for (int i = 0; i < this.directSize; i++){
+			//add direct pointers
 			SysLib.short2bytes(this.direct[i], writeToInode, index);
 			index += 2;
 		}
@@ -81,25 +92,30 @@ public class Inode {
 		SysLib.rawread(blockToWriteTo, bufferToDisk);
 		
 		int offsetInThatBlock = iNumber % 16 * this.iNodeSize;
-		System.arraycopy(writeToInode, 0, bufferToDisk, offsetInThatBlock, this.iNodeSize);	
+		System.arraycopy(writeToInode, 0, bufferToDisk, offsetInThatBlock, this.iNodeSize);
+		//write the iNode block to disk
 		SysLib.rawwrite(blockToWriteTo, bufferToDisk);
 		
 		return 1;
 	}
 	
-	/*
-	 * findIndexBlock
+	/* ----------------------------------------------------------------------//
+	 * findIndexBlock()
+	 * @return indirect pointer
 	 */
 	public short findIndexBlock(){
 		return this.indirect;
 	}
 	
-	/*
+	/* ----------------------------------------------------------------------//
 	 * registerIndexBlock
+	 * @purpose; register index block
+	 * @return: true on success, false otherwise
 	 */
 	boolean registerIndexBlock(short num){
 		for (int i=0; i < this.directSize; i++){
 			if (this.direct[i] == -1) {
+				//index block does not exist
 				return false;
 			}
 		}
@@ -117,40 +133,34 @@ public class Inode {
 	}
 	
 
-	//-----------------------------------------------------------------------//
-	// findTargetBlock()
-	// Purpose: finds the target block of an inode based on the offset of the file
-	// 			passed in.
-	// Returns: An int of the block found, or -1 if there is an error.
+	/* ----------------------------------------------------------------------
+	 * findTargetBlock()
+	 * @purpose: finds the target block of an inode based on the offset of
+	 * 			the file passed in.
+	 * @return: An int of the block found, or -1 if there is an error.
+	 */
 	int findTargetBlock(int offset){
-		int targetBlock = offset/512;
+		int targetBlock = offset/512;  //divided by blocksize
 		if (targetBlock < this.directSize){
 			return this.direct[targetBlock];
 		}
-		
 		if (this.indirect < 0)
-			return -1;
-					
+			return -1; //error
+		
+		//load the indexBlock to find the indirect pointer
 		byte[] indirectArray = new byte[Disk.blockSize];
 		SysLib.rawread(targetBlock, indirectArray);
 		
 		targetBlock -= this.directSize;
-		
 		return SysLib.bytes2short(indirectArray, targetBlock * 2);
-		
 	}
 	
-	private byte[] readIndirectBlock(){
-		byte[] indrect_block = new byte[Disk.blockSize];
-		//read entire indirect block
-		SysLib.rawread(indirect, indrect_block);
-		return indrect_block;
-	}
-	
-	//-----------------------------------------------------------------------//
-	// registerTargetBlock()
-	// Purpose: Registers the block passed in. If it needs to allocate an index block it will
-	// Returns: The int of the block it registers or -1 if there is an error.
+	/* ----------------------------------------------------------------------
+	 * registerTargetBlock()
+	 * Purpose: Registers the block passed in. If it needs to allocate an
+	 * 			index block it will
+	 * Returns: The int of the block it registers or -1 if there is an error.
+	 */
 	int registerTargetBlock(int offset, short indexBlockNumber){
 		int index_offset = offset / Disk.blockSize;
 		if (index_offset < 11) {
@@ -180,8 +190,10 @@ public class Inode {
 		
 	}
 	
-	/* unregisterIndexBlock()
-	 * need to write
+	/* ----------------------------------------------------------------------
+	 * unregisterIndexBlock()
+	 * Purpose: marking -1 to index blocks
+	 * Returns: byte array from the index block
 	 */
 	byte[] unregisterIndexBlock(){
 		if (this.indirect >= 0){
