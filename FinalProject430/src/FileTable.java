@@ -84,6 +84,7 @@ public class FileTable {
 		// return true if this file table entry found in my table
 		if (table.remove(e)){
 			e.inode.count--;
+			e.inode.flag = Inode.USED;
 			e.inode.toDisk(e.iNumber);
 			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE){
 				notify();

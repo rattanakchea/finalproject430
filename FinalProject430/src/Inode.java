@@ -96,7 +96,7 @@ public class Inode {
 	 * registerIndexBlock
 	 */
 	boolean registerIndexBlock(short num){
-		for (int i=0; i < this.directSize; i++){
+		for (int i=0; i < Inode.directSize; i++){
 			if (this.direct[i] == -1) {
 				return false;
 			}

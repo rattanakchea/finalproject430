@@ -76,7 +76,7 @@ public class Kernel
                   disk = new Disk( 1000 );
                   disk.start( );
                   
-                  fs = new FileSystem(//params);
+                  fs = new FileSystem(1000);
 
                   // instantiate a cache memory
                   cache = new Cache( disk.blockSize, 10 );
