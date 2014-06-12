@@ -10,10 +10,8 @@ public class SuperBlock {
 		byte[] superblock = new byte[Disk.blockSize];
 		SysLib.rawread(0, superblock);
 		
-		totalBlocks = SysLib.bytes2int(superblock, 0);
-		
+		totalBlocks = SysLib.bytes2int(superblock, 0);	
 		totalInodes = SysLib.bytes2int(superblock, 4);
-		
 		freeList = SysLib.bytes2int(superblock, 8);
 		
 		if (totalBlocks == diskSize && totalInodes > 0 && freeList >= 2){
@@ -37,7 +35,7 @@ public class SuperBlock {
 		Inode inode = new Inode();
 		inode.flag = 0;
 		
-		// wirte Inode to disk from block 1 to 4
+		// write Inode to disk from block 1 to 4
 		for (int i = 0; i < this.totalInodes; i++){
 			inode.toDisk((short)i);
 		}
@@ -50,7 +48,6 @@ public class SuperBlock {
 		}
 		
 		this.sync();
-		
 		return true;
 	}
 	
