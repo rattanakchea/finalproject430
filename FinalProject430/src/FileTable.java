@@ -15,18 +15,19 @@ public class FileTable {
 		dir = directory; // receive a reference to the Director
 	}
 	
-	// major public methods
+	/* ---------------------------------------------------------------
+	 * major public methods
+	// allocate a new file (structure) table entry for this file name
+	// allocate/retrieve and register the corresponding inode using dir
+	// increment this inode's count
+	// immediately write back this inode to the disk
+	// return a reference to this file (structure) table entry
+	
+	 * FileTableEntry is created every time file is opened; doesn't matter if it is existed or not, but
+	 * if file is existed, iNode will be the same and count inside Inode will be incremented.
+	 */
 	public synchronized FileTableEntry falloc(String filename, String mode) throws InterruptedException {
-		// allocate a new file (structure) table entry for this file name
-		// allocate/retrieve and register the corresponding inode using dir
-		// increment this inode's count
-		// immediately write back this inode to the disk
-		// return a reference to this file (structure) table entry
 		
-		/*
-		 * FileTableEntry is created every time file is opened; doesn't matter if it is existed or not, but
-		 * if file is existed, iNode will be the same and count inside Inode will be incremented.
-		 */
 		short iNumber = -1;
 		Inode inode = null;
 		
@@ -82,6 +83,12 @@ public class FileTable {
 		return fte;
 	}
 	
+	/* ----------------------------------------------------------------------//
+	 * ffree()
+	 * @purpose: remove the FileTableEntry from the fileTable
+	 * @para: FileTableEntry
+	// @return : true if it was to fee the FileTableEntry, false otherwise
+	 */
 	public synchronized boolean ffree(FileTableEntry e) {
 		// receive a file table entry reference
 		// save the corresponding inode to the disk
@@ -92,24 +99,33 @@ public class FileTable {
 			e.inode.toDisk(e.iNumber);
 			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE){
 				notify();
-			}
-			
+			}	
 			// last thread to close file
 //			if (e.inode.count == 0){
 //				e.inode.flag = Inode.USED;
 //			}
-			
 			return true;
 		}
 		
 		return false;
-		
 	}
 	
+	/* ----------------------------------------------------------------------//
+	 * fempty()
+	 * @purpose: check if the filetable is empty. should be called before
+	 * 			starting a format
+	 * @return : return true if table is empty
+	 */
 	public synchronized boolean fempty() {
-		return table.isEmpty(); // return if table is empty
+		return table.isEmpty();
 	}
 	
+	/* ----------------------------------------------------------------------//
+	 * getEntryAtInumber()
+	 * @purpose: find the FileTableEntry specified by iNumber
+	 * @return : return FileTableentry at iNumber if found
+	 * otherwise return null
+	 */
 	public FileTableEntry getEntryAtInumber(int iNumber){
 		for (int i = 0; i < table.size(); i++){
 			FileTableEntry fte = table.get(i);
@@ -117,7 +133,6 @@ public class FileTable {
 				return fte;
 			}
 		}
-		
 		return null;
 	}
 	
