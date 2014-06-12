@@ -1,9 +1,11 @@
+/* 
+ * Inode Class
+ * @data June 12, 2014
+ * @author Chamnap Lim
+ * @author Rattanak Chea
+ */
 import javax.naming.spi.DirStateFactory;
 
-/*
- * Inode Class
- * @data May 3, 2014
- */
 public class Inode {
 	private final static int iNodeSize = 32; // fix to 32 bytes
 	private final static int directSize = 11; // # direct pointers

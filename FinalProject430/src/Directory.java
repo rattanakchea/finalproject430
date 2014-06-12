@@ -1,3 +1,10 @@
+/* 
+ * Directory Class
+ * @data June 12, 2014
+ * @author Chamnap Lim
+ * @author Rattanak Chea
+ */
+
 public class Directory{
 	private static int maxChars = 30;	// max characters of each file name
 	
