@@ -115,20 +115,27 @@ public class Inode {
 	}
 	
 
-	/*
-	 * need to commands
-	 */
+	//-----------------------------------------------------------------------//
+	// findTargetBlock()
+	// Purpose: finds the target block of an inode based on the offset of the file
+	// 			passed in.
+	// Returns: An int of the block found, or -1 if there is an error.
 	int findTargetBlock(int offset){
-		if (offset < 0) return -1;
-		else if (offset < directSize) {
-			//direct dump
-			return direct[offset];
+		int targetBlock = offset/512;
+		if (targetBlock < this.directSize){
+			return this.direct[targetBlock];
 		}
-		//get the index within indirect block
-		int indirect_offset = offset - directSize;
 		
-		//read from this indirect block the short at indirect offset
-		return SysLib.bytes2short(readIndirectBlock(), indirect_offset);
+		if (this.indirect < 0)
+			return -1;
+					
+		byte[] indirectArray = new byte[Disk.blockSize];
+		SysLib.rawread(targetBlock, indirectArray);
+		
+		targetBlock -= this.directSize;
+		
+		return SysLib.bytes2short(indirectArray, targetBlock * 2);
+		
 	}
 	
 	private byte[] readIndirectBlock(){
@@ -138,9 +145,10 @@ public class Inode {
 		return indrect_block;
 	}
 	
-	/*
-	 * need to write
-	 */
+	//-----------------------------------------------------------------------//
+	// registerTargetBlock()
+	// Purpose: Registers the block passed in. If it needs to allocate an index block it will
+	// Returns: The int of the block it registers or -1 if there is an error.
 	int registerTargetBlock(int offset, short indexBlockNumber){
 		int index_offset = offset / Disk.blockSize;
 		if (index_offset < 11) {
@@ -156,6 +164,7 @@ public class Inode {
 		if (this.indirect < 0){
 			return -3;
 		}
+		
 		byte[] data = new byte[Disk.blockSize];
 		int j = index_offset - directSize;
 		if (SysLib.bytes2short(data, j*2) > 0) {

@@ -51,7 +51,7 @@ public class SuperBlock {
 		return true;
 	}
 	
-	private void sync(){
+	public void sync(){
 		// store superblock
 		byte[] blockZero = new byte[Disk.blockSize];
 		
