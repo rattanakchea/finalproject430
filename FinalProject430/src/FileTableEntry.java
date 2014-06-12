@@ -1,6 +1,8 @@
-/*
+/* 
  * FileTableEntry Class
- * @data May 3, 2014
+ * @data June 12, 2014
+ * @author Chamnap Lim
+ * @author Rattanak Chea
  */
 
 public class FileTableEntry {  // Each table entry should have

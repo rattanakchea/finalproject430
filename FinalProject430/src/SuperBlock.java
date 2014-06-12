@@ -1,3 +1,9 @@
+/* 
+ * SuperBlock Class
+ * @data June 12, 2014
+ * @author Chamnap Lim
+ * @author Rattanak Chea
+ */
 
 public class SuperBlock {
 	private final int defaultInodeBlocks = 64;

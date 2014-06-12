@@ -1,16 +1,22 @@
 /*
  * FileSystem Class
- * @data May 3, 2014
+ * @data June 12, 2014
+ * @author Chamnap Lim
+ * @author Rattanak Chea
  */
 public class FileSystem {
+	//class members
 	private SuperBlock superblock;
 	private Directory directory;
 	private FileTable filetable;
-	
 	public static final int SEEK_SET = 0;
 	public static final int SEEK_CUR = 1;
 	public static final int SEEK_END = 2;
 
+	//----------------------------------------------------------------
+	//FileSystem constructors
+	//@purpose: create the file system in "/" root direcotry
+	//close File Table Entry when done
 	public FileSystem(int diskBlocks) throws InterruptedException {
 		superblock = new SuperBlock(diskBlocks);
 		directory = new Directory(superblock.totalInodes);
@@ -27,42 +33,64 @@ public class FileSystem {
 		}
 		this.close(dirEnt);
 	}
-
-	public boolean format(int totalNodes) {
-
-		this.superblock.format(totalNodes);
+	
+	/*----------------------------------------------------------------
+	 * format()
+	 * @purpose: format data on disk.java
+	 * @para: totalNodes specifies the maximum number of files to
+	 * be created.
+	 */
+	public boolean format(int totalNodes){
+		this.superblock.format(totalNodes);  //format superblock
 		this.directory = new Directory(totalNodes);
 		this.filetable = new FileTable(directory);
 
 		return true;
 	}
 	
+	/*----------------------------------------------------------------
+	 * open()
+	 * @purpose: format data on disk.java
+	 * @para: totalNodes specifies the maximum number of files to
+	 * be created.
+	 * @return: a FileTableEntry or NULL if it is not available
+	 */
 	public FileTableEntry open(String fileName, String mode) throws InterruptedException{
 		FileTableEntry localFileTableEntry = filetable.falloc(fileName, mode);
 		
+		//for WRITE mode
 		if (mode.equalsIgnoreCase("w") && !this.deallocateAllBlocks(localFileTableEntry))
 			return null;
 		return localFileTableEntry;
 	}
-
-	// close()
-	// Purpose: closes file and return boolean
-	// return true if it able to close file
+	
+	/*----------------------------------------------------------------
+	 * close()
+	 * @purpose: close the file
+	 * @para: FileTableEntry
+	 * @return: a boolean
+	 */
 	public boolean close(FileTableEntry fte) {
 		synchronized(fte){
-			if (--fte.count > 0){
+			if (fte.count > 1){
 				return true;
 			}
 		}
 		return filetable.ffree(fte);
 	}
 
-	// methods
+	/*----------------------------------------------------------------
+	 * read()
+	 * @purpose: read the amount of file specified by the buffer
+	 * 			starting at the position currently pointed to by the see
+	 * 			pointer
+	 * @return: how much of the file was read
+	 */
 	public int read(FileTableEntry fte, byte[] buffer) {
 		if (fte.mode.equalsIgnoreCase("w") || fte.mode.equalsIgnoreCase("a")){
 			return -1;
 		}
-		
+		//initialize variables
 		int bufferRead = 0;
 		int bufferLength = buffer.length;
 		int fileSize = this.fsize(fte);
@@ -147,14 +175,24 @@ public class FileSystem {
 		return bufferRead;
 	}
 
-	// methods
+	/*----------------------------------------------------------------
+	 * fsize()
+	 * @purpose: return the size in bytes of the file indicated by
+	 * 		FileTableEntry
+	 * @para: FileTableEntry
+	 */
 	public int fsize(FileTableEntry dirEnt) {
 		synchronized(dirEnt){
 			return dirEnt.inode.length;
 		}
 	}
 
-	// write
+	/*----------------------------------------------------------------
+	 * write()
+	 * @purpose: write the contents of buffer to the FileTableEntry
+	 * @para: FileTableEntry, and a byte array
+	 * @return: number of byte that was written (file size)
+	 */
 	public int write(FileTableEntry fte, byte[] buffer) {
 		
 		if (fte.mode.equalsIgnoreCase("r")){
@@ -248,9 +286,12 @@ public class FileSystem {
 			return bufferWritten;
 		}
 	}
-
-	// delete()
-	// Purpose: remove file. Remove fileName from directory and file table entry from filetable
+	/*----------------------------------------------------------------
+	 * delete()
+	 * @purpose: remove file. Remove fileName from directory and file
+	 * table entry from filetable
+	 * @return: none
+	 */
 	public boolean delete(String fileName) throws InterruptedException {
 		FileTableEntry fte = open(fileName, "w");
 		
@@ -263,11 +304,12 @@ public class FileSystem {
 		
 		return closeFTE && removeFromDirectory;
 	}
-
-	// seek()
-	// Purpose: seeks through file as specified by user. The user can't seek 
-	//			before a file or more than the size of a file.
-	// return: 0 success. return -1 = failure
+	/*--------------------------------------------------------------
+	 * seek()
+	 * @purpose: seeks through file as specified by user. The user can't seek 
+	 * 			before a file or more than the size of a file.
+	 * @return: 0 if success. return -1 = failure
+	 */ 
 	public int seek(FileTableEntry ftEnt, int offset, int whence) {
 		synchronized(ftEnt){
 			// set seek pointer to offset from beginning of the file
@@ -292,8 +334,14 @@ public class FileSystem {
 		return ftEnt.seekPtr;
 	}
 	
+	/*--------------------------------------------------------------
+	 * deallocateAllBlocks()
+	 * @purpose: deallocates all blocks from a file
+	 * @return: true on success, false otherwise.
+	 */ 
 	private boolean deallocateAllBlocks(FileTableEntry fte){
-		if (fte.inode.count != -1){	// file has opened before
+		// file has opened before, i.e not exist
+		if (fte.inode.count != -1){
 			return false;
 		}
 		
@@ -304,7 +352,7 @@ public class FileSystem {
 				superblock.returnBlock(j);
 			}
 		}
-		
+		//find the block to deallocate
 		for (int i = 0; i < 11; i++){
 			if (fte.inode.direct[i] != -1){
 				superblock.returnBlock(fte.inode.direct[i]);
@@ -316,6 +364,12 @@ public class FileSystem {
 		return true;
 	}
 	
+	/*--------------------------------------------------------------
+	 * sync()
+	 * @purpose: sync will make sure that the directory is saved
+	 * 			to the disk.
+	 * @return: 0 if success
+	 */ 
 	public int sync() throws InterruptedException{
 		// open directory
 		FileTableEntry fte = open("/", "w");
@@ -330,8 +384,6 @@ public class FileSystem {
 		close(fte);
 		
 		superblock.sync();
-		
 		return 0;
 	}
-
 }
