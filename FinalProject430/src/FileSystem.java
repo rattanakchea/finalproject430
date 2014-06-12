@@ -15,7 +15,7 @@ public class FileSystem {
 
 	//----------------------------------------------------------------
 	//FileSystem constructors
-	//@purpose: create the file system in "/" root direcotry
+	//@purpose: create the file system in "/" root directory
 	//close File Table Entry when done
 	public FileSystem(int diskBlocks) throws InterruptedException {
 		superblock = new SuperBlock(diskBlocks);
