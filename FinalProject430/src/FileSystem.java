@@ -29,7 +29,7 @@ public class FileSystem {
 	}
 
 	public boolean format(int paramInt) {
-//		while (!this.filetable.fempty()) {
+//		while (!this.filetable.fempty()) {	
 //		}
 		this.superblock.format(paramInt);
 
@@ -42,7 +42,10 @@ public class FileSystem {
 	
 	public FileTableEntry open(String fileName, String mode) throws InterruptedException{
 		FileTableEntry localFileTableEntry = filetable.falloc(fileName, mode);
-		return null;
+		
+		if (mode.equalsIgnoreCase("w") && !this.deallocateAllBlocks(localFileTableEntry))
+			return null;
+		return localFileTableEntry;
 	}
 
 	// methods
@@ -51,16 +54,43 @@ public class FileSystem {
 	}
 
 	// methods
-	public void read(FileTableEntry dirEnt, byte[] data) {
-
+	public int read(FileTableEntry dirEnt, byte[] data) {
+		if (dirEnt.mode.equalsIgnoreCase("w") || dirEnt.mode.equalsIgnoreCase("a")){
+			return -1;
+		}
+		
+		int i = 0;
+		int j = dirEnt.inode.length;
+		
+		synchronized(dirEnt){
+			while( (j > 0) && (dirEnt.seekPtr < this.fsize(dirEnt))){
+				int targetBlock = dirEnt.inode.findTargetBlock(dirEnt.seekPtr);
+				if (targetBlock == -1) break;
+				
+				byte[] arrayOfByte = new byte[Disk.blockSize];
+				SysLib.rawread(targetBlock, arrayOfByte);
+				
+				int m = dirEnt.seekPtr % Disk.blockSize;
+				int n = Disk.blockSize - m;
+				int i1 = fsize(dirEnt) - dirEnt.seekPtr;
+				int i2 = Math.min(Math.min(n, j), i1);
+				
+				System.arraycopy(arrayOfByte, m, data, i, i2);
+				
+				dirEnt.seekPtr += i2;
+				i += i2;
+				j -= i2;
+			}
+		}
+		
+		return 1;
 	}
 
 	// methods
 	public int fsize(FileTableEntry dirEnt) {
-		if (dirEnt == null)
-			return -1;
-		
-		return dirEnt.inode.length;
+		synchronized(dirEnt){
+			return dirEnt.inode.length;
+		}
 	}
 
 	// methods
@@ -76,6 +106,30 @@ public class FileSystem {
 	// methods
 	public int seek(int fd, int offset, int whence) {
 		return 1;
+	}
+	
+	private boolean deallocateAllBlocks(FileTableEntry fte){
+		if (fte.inode.count != -1){	// file has opened before
+			return false;
+		}
+		
+		byte[] inderectBlockContent = fte.inode.unregisterIndexBlock();	
+		if (inderectBlockContent != null){
+			int i = 0, j;
+			while ( (j = SysLib.bytes2short(inderectBlockContent, i)) != -1 ){
+				superblock.returnBlock(j);
+			}
+		}
+		
+		for (int i = 0; i < 11; i++){
+			if (fte.inode.direct[i] != -1){
+				superblock.returnBlock(fte.inode.direct[i]);
+				fte.inode.direct[i] = -1;
+			}
+		}
+		
+		fte.inode.toDisk(fte.iNumber);
+		return true;
 	}
 
 }
