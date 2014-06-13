@@ -163,7 +163,7 @@ public class Inode {
 	 */
 	int registerTargetBlock(int offset, short indexBlockNumber){
 		int index_offset = offset / Disk.blockSize;
-		if (index_offset < 11) {
+		if (index_offset < 11) {	
 			if (this.direct[index_offset] >= 0)
 				return -1;
 			
@@ -178,7 +178,11 @@ public class Inode {
 		}
 		
 		byte[] data = new byte[Disk.blockSize];
+		
+		SysLib.rawread(index_offset, data);
+		
 		int j = index_offset - directSize;
+		
 		if (SysLib.bytes2short(data, j*2) > 0) {
 			SysLib.cerr("indexBlock, indirectNumber : " + j);
 			SysLib.cerr(" "+ SysLib.bytes2short(data, j*2));
