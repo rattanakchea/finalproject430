@@ -15,7 +15,7 @@ public class FileSystem {
 
 	//----------------------------------------------------------------
 	//FileSystem constructors
-	//@purpose: create the file system in "/" root direcotry
+	//@purpose: create the file system in "/" root directory
 	//close File Table Entry when done
 	public FileSystem(int diskBlocks) throws InterruptedException {
 		superblock = new SuperBlock(diskBlocks);
@@ -50,13 +50,11 @@ public class FileSystem {
 	
 	/*----------------------------------------------------------------
 	 * open()
-	 * @purpose: format data on disk.java
-	 * @para: totalNodes specifies the maximum number of files to
-	 * be created.
+	 * @purpose: opens the file specified by the filename in the give mode.
 	 * @return: a FileTableEntry or NULL if it is not available
 	 */
-	public FileTableEntry open(String fileName, String mode) throws InterruptedException{
-		FileTableEntry localFileTableEntry = filetable.falloc(fileName, mode);
+	public FileTableEntry open(String filename, String mode) throws InterruptedException{
+		FileTableEntry localFileTableEntry = filetable.falloc(filename, mode);
 		
 		//for WRITE mode
 		if (mode.equalsIgnoreCase("w") && !this.deallocateAllBlocks(localFileTableEntry))
@@ -66,7 +64,7 @@ public class FileSystem {
 	
 	/*----------------------------------------------------------------
 	 * close()
-	 * @purpose: close the file
+	 * @purpose: close the file specified by FileTableEntry
 	 * @para: FileTableEntry
 	 * @return: a boolean
 	 */
@@ -82,7 +80,7 @@ public class FileSystem {
 	/*----------------------------------------------------------------
 	 * read()
 	 * @purpose: read the amount of file specified by the buffer
-	 * 			starting at the position currently pointed to by the see
+	 * 			starting at the position currently pointed to by the seek
 	 * 			pointer
 	 * @return: how much of the file was read
 	 */
@@ -289,7 +287,7 @@ public class FileSystem {
 	/*----------------------------------------------------------------
 	 * delete()
 	 * @purpose: remove file. Remove fileName from directory and file
-	 * table entry from filetable
+	 * table entry from FileTable
 	 * @return: none
 	 */
 	public boolean delete(String fileName) throws InterruptedException {

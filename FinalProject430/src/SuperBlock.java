@@ -11,6 +11,12 @@ public class SuperBlock {
 	public int totalInodes; // the number of inodes
 	public int freeList;	// the block number of the free list's head
 	
+	/* ----------------------------------------------------------------
+	 * SuperBlock constructors
+	 * @purpose: initialize totalBlocks, totalInodes, freeList
+	 * 			and format disk
+	 * @para: diskSize
+	 */
 	public SuperBlock(int diskSize){
 		// read the superblock from disk
 		byte[] superblock = new byte[Disk.blockSize];
@@ -30,14 +36,23 @@ public class SuperBlock {
 		}
 	}
 	
+	/* ----------------------------------------------------------------
+	 * format(int inode)
+	 * @para: inodeBlocks
+	 * @purpose: format the superblock with number of inodeBlocks
+	 */
 	public boolean format(int inodeBlocks){
 		int totalByteForInode = inodeBlocks * 32;
+		//number blocks needed for Inodes
 		double totalBlockforInode = (double)totalByteForInode / 512;
 		int totalBlockForInodeInInt = (int) Math.ceil(totalBlockforInode);  // 4
 		
 		totalInodes = inodeBlocks;
+		
+		//first freeblock follows iNodeBlocks
 		freeList = totalBlockForInodeInInt + 1;
 		
+		//instantiate new Inode
 		Inode inode = new Inode();
 		inode.flag = 0;
 		
@@ -68,38 +83,46 @@ public class SuperBlock {
 		SysLib.rawwrite(0, blockZero);
 	}
 	
-	// -------------------------getFreeBlock---------------------------------------
+	/* ---------------------------------------------------------------
+	 * getFreeBlock()
+	 * @returns: the number of the next free block to be used in
+	 * 			either the direct or indirect for the Inode
+	 */
 	public int getFreeBlock(){
-		int i = this.freeList;
-		
+		int i = this.freeList;  //block number from freelist	
 		if (i != -1){
+			//instantiate a new byte array data
 			byte[] blockContent = new byte[Disk.blockSize];
 			SysLib.rawread(i, blockContent);
-			
+			//freelist points to next block
 			this.freeList = SysLib.bytes2int(blockContent, 0);
-			
 			SysLib.int2bytes(0, blockContent, 0);
 			SysLib.rawwrite(i, blockContent);
 		}
-		
+		//if i=-1, no free block to return, so return -1
 		return i;
 	}
 	
-	// -------------------------returnBlock---------------------------------------
+	/* ---------------------------------------------------------------
+	 * returnBlock()
+	 * @para: blockId
+	 * @returns: true if successful return a block, else false
+	 */
 	public boolean returnBlock(int blockId){
 		if (blockId >= 0){
 			byte[] blockContent = new byte[512];
 			// Initialize to zero
 			for (int i = 0; i < Disk.blockSize; i++)
 				blockContent[i] = 0;
-			
+
 			SysLib.int2bytes(this.freeList, blockContent, 0);	// set the link
+			//write next free block pointer to new free block
 			SysLib.rawwrite(blockId, blockContent);	// write back to disk
 			
+			//freelist points to new block
 			this.freeList = blockId;
 			return true;
 		}
-		
 		return false;
 	}
 }
